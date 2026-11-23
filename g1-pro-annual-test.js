@@ -77,11 +77,11 @@
     if (typeof $persistentStore !== "undefined" &&
         typeof $persistentStore.write === "function") {
       if (!$persistentStore.write(JSON.stringify(record), STORE_KEY)) {
-        console.log("[g1-pro-annual-test] local record write failed");
+        console.log("[g1-pro-annual-test] Falha ao salvar o registro local");
       }
     }
   } catch (error) {
-    console.log("[g1-pro-annual-test] local record unavailable");
+    console.log("[g1-pro-annual-test] Registro local indisponível");
   }
 
   console.log("[g1-pro-annual-test] " + VERSION + " hits=" + hits + " annualHits=" + annualHits);

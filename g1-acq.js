@@ -2,7 +2,7 @@
 "use strict";
 
 (function () {
-  var VERSION = "g1-acq-v7.5";
+  var VERSION = "g1-acq-v7.5-pt-BR.1";
   var SOURCE_PREFIX = "g1.ios.2tb.";
   // User-selected 12-month offer ID from the screenshot; store metadata is still unverified.
   var TARGET = "g1.2tb.ai.12months_ip_90p";
@@ -31,7 +31,7 @@
   try {
     collectOriginalSkus(body);
   } catch (error) {
-    console.log("[g1-acq] SKU collection unavailable");
+    console.log("[g1-acq] Coleta de SKUs indisponível");
   }
 
   if (!/^https:\/\/one\.google\.com\/ai\?/.test(url)) {
@@ -96,11 +96,11 @@
     if (typeof $persistentStore !== "undefined" &&
         typeof $persistentStore.write === "function") {
       if (!$persistentStore.write(JSON.stringify(record), TEST_KEY)) {
-        console.log("[g1-acq] local record write failed");
+        console.log("[g1-acq] Falha ao salvar o registro local");
       }
     }
   } catch (error) {
-    console.log("[g1-acq] local record unavailable");
+    console.log("[g1-acq] Registro local indisponível");
   }
 
   console.log("[g1-acq] " + VERSION + " hits=" + hits + " annualHits=" + annualHits);

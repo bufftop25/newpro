@@ -1,25 +1,25 @@
 /**
- * g1-acq.js — Google One 订阅页商品 ID 映射(Shadowrocket http-response 脚本)
+ * g1-acq.js — Mapeamento de IDs de produtos do Google One (script http-response do Shadowrocket)
  *
- * 设计原则:
- *   1. 单一职责——只做「原始月付 ID → 优惠档 ID」的字符串映射,不做诊断、不做上报;
- *   2. 目录感知——先从响应原文里收集真实存在的优惠档(acq 结尾),目标档
- *      不在目录而备用档在目录时,自动落到备用档,避免把收银台指向空商品;
- *   3. 数据外置——所有映射集中在 SKU_MAP / FALLBACK 两个表里,增删档位只改表。
+ * Princípios:
+ *   1. Responsabilidade única: mapear IDs mensais para IDs promocionais, sem diagnóstico ou envio de dados;
+ *   2. Primeiro identifica no texto original os IDs promocionais terminados em acq; se o alvo
+ *      não aparece e a alternativa aparece, usa a alternativa. Isso não valida a disponibilidade na loja;
+ *   3. Mapeamentos concentrados nas tabelas SKU_MAP e FALLBACK.
  *
- * 版本:v6
+ * Versão: v6
  */
 "use strict";
 
 console.log("[g1-acq] v6 loaded");
 
-/* 原始 iOS 内购 ID → 目标优惠档 */
+/* ID original de compra no iOS → ID promocional de destino */
 var SKU_MAP = {
   "g1.ios.20tb.m.v2":     "g1.20tb.3months_ip_90p.acq",
   "g1.ios.30tb.ai.pro.m": "g1.ai.ultra.3months_ip_90p.acq"
 };
 
-/* 目标档不在目录时的备用档(社区实测 75p 档在 Play/iOS 目录均有出现) */
+/* Alternativas históricas quando o destino não aparece no texto original */
 var FALLBACK = {
   "g1.20tb.3months_ip_90p.acq":     "g1.20tb.3months_ip_75p.acq",
   "g1.ai.ultra.3months_ip_90p.acq": "g1.ai.ultra.3months_ip_75p.acq"
@@ -36,14 +36,14 @@ function run() {
     return;
   }
 
-  /* 响应里真实存在的优惠档目录 */
+  /* IDs promocionais presentes na resposta original */
   var raw = body.match(/g1\.[a-z0-9._]{2,60}acq/g) || [];
   var seen = {};
   var catalog = [];
   for (var r = 0; r < raw.length; r++) {
     if (!seen[raw[r]]) { seen[raw[r]] = 1; catalog.push(raw[r]); }
   }
-  console.log("[g1-acq] 目录优惠档: " + (catalog.join(", ") || "无"));
+  console.log("[g1-acq] IDs promocionais encontrados: " + (catalog.join(", ") || "nenhum"));
 
   var out = body, total = 0;
   var froms = Object.keys(SKU_MAP);
@@ -54,7 +54,7 @@ function run() {
 
     var to = SKU_MAP[from];
     if (catalog.indexOf(to) === -1 && FALLBACK[to] && catalog.indexOf(FALLBACK[to]) !== -1) {
-      console.log("[g1-acq] 主档不在目录,降级 " + to + " -> " + FALLBACK[to]);
+      console.log("[g1-acq] Destino ausente na resposta; usando alternativa " + to + " -> " + FALLBACK[to]);
       to = FALLBACK[to];
     }
 
@@ -63,7 +63,7 @@ function run() {
     console.log("[g1-acq] " + from + " -> " + to + " x" + n);
   }
 
-  console.log(total ? "[g1-acq] 共改写 " + total + " 处" : "[g1-acq] 未命中");
+  console.log(total ? "[g1-acq] Total de substituições: " + total + "" : "[g1-acq] Nenhuma correspondência");
   $done(total ? { body: out } : {});
 }
 
