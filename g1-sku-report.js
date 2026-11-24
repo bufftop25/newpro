@@ -3,10 +3,11 @@
 
 (function () {
   var ROOT = "https://one.google.com/g1-sku-report";
-  var VERSION = "v7.5.0-pt-BR.1";
-  var COLLECTOR_VERSION = "g1-acq-v7.5-pt-BR.1";
+  var VERSION = "v7.5.0-pt-BR.2";
+  var COLLECTOR_VERSION = "g1-acq-v7.5-pt-BR.2";
   var CONFIGURED_TARGET = "g1.2tb.ai.12months_ip_90p";
   var LEGACY_TARGET = "g1.2tb.ai.annual";
+  var ULTRA_TRIAL = typeof $argument === "string" && $argument.trim() === "ultra_1m";
   var SCAN_KEY = "g1.sku.scan.v1";
   var TEST_KEY = "g1.pro.annual.test.v1";
   var url = typeof $request === "object" && $request ? $request.url : "";
@@ -207,6 +208,7 @@
     "<style>body{font:16px/1.6 -apple-system,BlinkMacSystemFont,sans-serif;max-width:960px;margin:24px auto;padding:0 18px;color:#1c2737;background:#f5f7fa}section{background:white;border:1px solid #dde3ec;border-radius:12px;padding:18px;margin:18px 0}h1{font-size:24px;margin-bottom:10px}h2{font-size:20px}code{overflow-wrap:anywhere}a{color:#1259be}table{border-collapse:collapse;width:100%;font-size:14px}td,th{padding:9px;border-bottom:1px solid #ddd;text-align:left;vertical-align:top}.scroll{overflow:auto}.note{color:#46556b}.badge{display:inline-block;background:#e0f4e8;color:#176238;padding:4px 10px;border-radius:8px}.actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:20px 0}.actions form{margin:0}button,.actions a{font:inherit;padding:10px 16px;border:0;border-radius:8px;cursor:pointer;text-decoration:none}.actions a{background:#e4eaf3}.actions button{background:#1259be;color:white}button{background:#e4eaf3;color:#1c2737}</style>",
     "<h1>Google One — Relatório local de SKUs</h1>",
     "<p class=badge>Relatório local ativo · " + VERSION + "</p>",
+    ULTRA_TRIAL ? "<section><h2>Teste experimental do Ultra de 30 TB</h2><p>Este módulo usa o candidato <code>g1.ai.ultra.1month_eft.acq</code>. O nome do ID não confirma gratuidade, disponibilidade ou elegibilidade. Confira o produto, o preço inicial e a renovação na tela nativa da App Store antes de confirmar. O destino realmente aplicado em cada execução aparece na tabela de mapeamentos abaixo.</p></section>" : "",
     "<nav class=actions aria-label=\"Ações do relatório\"><form method=get action=\"" + ROOT + "\"><button type=submit name=format value=json>Exportar JSON</button></form><a href=\"" + ROOT + "\">Atualizar relatório</a></nav>",
     "<p class=note>Esta página é gerada pelo Shadowrocket neste aparelho. O endereço usa one.google.com, mas os registros ficam armazenados localmente.</p>",
     "<p class=note>Mantenha apenas um módulo G1 ACQ ativo: primeiro ele coleta os IDs originais e depois aplica os três mapeamentos.</p>",

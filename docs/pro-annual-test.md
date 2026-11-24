@@ -1,13 +1,13 @@
 # Guia de coleta e diagnóstico — G1 ACQ em português
 
-Versão **v7.5.0-pt-BR.1**, baseada no G1 ACQ v7.5.0. Consulte também o [README](../README.md).
+Versão **v7.5.0-pt-BR.2**, baseada no G1 ACQ v7.5.0. Consulte também o [README](../README.md).
 
 ## 1. Instalação e conexão
 
 Importe na área de Módulos da configuração atual:
 
 ```text
-https://cdn.jsdelivr.net/gh/bufftop25/newpro@v7.5.0-pt-BR.1/g1-acq-v7.sgmodule
+https://cdn.jsdelivr.net/gh/bufftop25/newpro@v7.5.0-pt-BR.2/g1-acq-v7.sgmodule
 ```
 
 Ative somente uma cópia do coletor. Desative versões antigas e os módulos separados de teste anual e SKU Scan. Ative a descriptografia HTTPS, confira `one.google.com` nos nomes de host e use um certificado instalado e confiável no iOS. Reconecte depois das alterações.
@@ -16,7 +16,7 @@ O módulo descriptografa o tráfego desse domínio. A regra UDP 443 pode afetar 
 
 ## 2. Conferir o relatório e coletar
 
-No Safari, abra `https://one.google.com/g1-sku-report`. Confira **Relatório local ativo · v7.5.0-pt-BR.1**. Uma página comum do Google ou 404 não é o relatório local.
+No Safari, abra `https://one.google.com/g1-sku-report`. Confira **Relatório local ativo · v7.5.0-pt-BR.2**. Uma página comum do Google ou 404 não é o relatório local.
 
 Anote contadores, versão real do coletor e horário. Abra o gerenciamento do Google One no app Google e navegue pelos planos realmente oferecidos à conta. Aguarde carregar e atualize o relatório.
 

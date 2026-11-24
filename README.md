@@ -1,6 +1,6 @@
 # newpro — G1 ACQ em português
 
-Versão **v7.5.0-pt-BR.1** para **iOS e Shadowrocket**, baseada em [crhywun/g1-acq](https://github.com/crhywun/g1-acq), versão original v7.5.0, commit `60d46dffac845ad15651aabf9d460e1cde0bfc96`.
+Versão **v7.5.0-pt-BR.2** para **iOS e Shadowrocket**, baseada em [crhywun/g1-acq](https://github.com/crhywun/g1-acq), versão original v7.5.0, commit `60d46dffac845ad15651aabf9d460e1cde0bfc96`.
 
 O módulo coleta IDs de produtos nas respostas recebidas de `one.google.com`, registra atividades e aplica três mapeamentos de IDs nas respostas de `/ai?`. O relatório é gerado no próprio aparelho e permite exportar os registros em JSON.
 
@@ -11,7 +11,7 @@ O módulo coleta IDs de produtos nas respostas recebidas de `one.google.com`, re
 Endereço desta versão, disponível depois da publicação da tag:
 
 ```text
-https://cdn.jsdelivr.net/gh/bufftop25/newpro@v7.5.0-pt-BR.1/g1-acq-v7.sgmodule
+https://cdn.jsdelivr.net/gh/bufftop25/newpro@v7.5.0-pt-BR.2/g1-acq-v7.sgmodule
 ```
 
 1. Adicione esse endereço na área de **Módulos** da configuração em uso no Shadowrocket.
@@ -31,7 +31,7 @@ Com módulo e conexão ativos, abra no Safari:
 - [Relatório HTML](https://one.google.com/g1-sku-report)
 - [Exportação JSON](https://one.google.com/g1-sku-report?format=json)
 
-A página deve mostrar **Relatório local ativo · v7.5.0-pt-BR.1**. Ela é criada pelo script no aparelho; não é um relatório oferecido pelo Google, apesar do domínio na barra de endereço.
+A página deve mostrar **Relatório local ativo · v7.5.0-pt-BR.2**. Ela é criada pelo script no aparelho; não é um relatório oferecido pelo Google, apesar do domínio na barra de endereço.
 
 O relatório mostra atividade de coleta, últimas 10 respostas, última execução dos três mapeamentos e SKUs candidatos. Os botões são **Exportar JSON**, **Atualizar relatório** e **Apagar registros de coleta e teste desta ferramenta**.
 
@@ -47,6 +47,20 @@ Para verificar a coleta:
 IDs repetidos aumentam ocorrências sem aumentar o total de IDs distintos. O módulo não consulta ativamente o catálogo completo: registra somente o que estiver nas respostas recebidas. Reinstalar ou apagar registros não força o Google a enviar novos IDs.
 
 ## Mapeamentos mantidos do original
+
+### Experimento separado: candidato Ultra de um mês
+
+A versão `v7.5.0-pt-BR.2` inclui um módulo específico para testar o candidato encontrado nos forks [nhoxloxchoi11](https://github.com/nhoxloxchoi11/g1-acq) e [siwtom](https://github.com/siwtom/g1-acq):
+
+```text
+https://cdn.jsdelivr.net/gh/bufftop25/newpro@v7.5.0-pt-BR.2/g1-ultra-1m-test.sgmodule
+```
+
+Desative o módulo G1 ACQ anterior antes de ativar **G1 ACQ - Teste Ultra 1 mês**. Não execute os dois juntos. O experimento altera somente o destino da entrada original de 30 TB para `g1.ai.ultra.1month_eft.acq`; as entradas de 2 e 20 TB continuam com seus mapeamentos anteriores. Não há alternativa automática para outra oferta de 30 TB nesse modo.
+
+Abra o relatório local para conferir a identificação **Teste experimental do Ultra de 30 TB** e o destino efetivamente salvo na tabela. Registros históricos podem continuar mostrando os destinos antigos até uma nova execução. O módulo principal normal mantém o comportamento anterior.
+
+**Este ID é um candidato, não uma oferta gratuita comprovada. Não confirme uma compra se o preço, o produto ou a renovação não corresponderem ao que você deseja.** Testes locais não consultam a App Store nem confirmam benefícios reais. Nenhum token de compra de terceiros foi incorporado.
 
 | ID original completo | Destino principal | Alternativa |
 |---|---|---|
@@ -113,4 +127,4 @@ Os testes cobrem mapeamentos, alternativas, coleta, limites, dados antigos, expo
 
 Esta adaptação mantém a referência e a autoria do [projeto original](https://github.com/crhywun/g1-acq). Não é afiliada ao Google, Apple, Shadowrocket ou jsDelivr. As imagens históricas preservadas podem conter texto no idioma original.
 
-Destino: [bufftop25/newpro](https://github.com/bufftop25/newpro). Os módulos apontam para a tag `v7.5.0-pt-BR.1`. Publique uma nova tag para futuras alterações; não substitua uma versão já distribuída.
+Destino: [bufftop25/newpro](https://github.com/bufftop25/newpro). Os módulos apontam para a tag `v7.5.0-pt-BR.2`. Publique uma nova tag para futuras alterações; não substitua uma versão já distribuída.

@@ -32,6 +32,7 @@ function run(name, options = {}) {
   const reads = [];
   const writes = [];
   const context = {
+    $argument: options.argument,
     $request: {
       url: options.url || "https://one.google.com/ai?fixture=1",
       headers: { Cookie: "cookie-secret", Authorization: "auth-secret" }
@@ -65,6 +66,29 @@ function get(storage, key) {
   return JSON.parse(storage.get(key));
 }
 
+test("experimental Ultra one-month mode changes only the 30TB destination and never falls back to a paid offer", () => {
+  const body = JSON.stringify([SOURCE, TWENTY, THIRTY, THIRTY_FALLBACK]);
+  const result = run("g1-acq.js", { body, argument: "ultra_1m" });
+  assert.deepEqual(JSON.parse(result.payload.body), [
+    TARGET, TWENTY_TARGET, "g1.ai.ultra.1month_eft.acq", THIRTY_FALLBACK
+  ]);
+  const thirty = get(result.storage, TEST_KEY).matchedFrom.find(row => row.id === THIRTY);
+  assert.deepEqual(thirty, {
+    id: THIRTY, to: "g1.ai.ultra.1month_eft.acq", count: 1, fallback: false
+  });
+  const normal = run("g1-acq.js", { body, argument: "unknown-mode" });
+  assert.equal(JSON.parse(normal.payload.body)[2], THIRTY_FALLBACK);
+});
+
+test("experimental module report identifies an unverified candidate without claiming free pricing", () => {
+  const html = run("g1-sku-report.js", { url: REPORT, argument: "ultra_1m" }).payload.response.body;
+  assert(html.includes('g1.ai.ultra.1month_eft.acq'));
+  assert(html.includes('Teste experimental do Ultra de 30 TB'));
+  assert(html.includes('não confirma gratuidade'));
+  const normal = run("g1-sku-report.js", { url: REPORT }).payload.response.body;
+  assert(!normal.includes('Teste experimental do Ultra de 30 TB'));
+});
+
 test("combined module maps 2TB, 20TB and 30TB while preserving unrelated full tokens", () => {
   const untouched = [
     "g1.ios.12tb.fixture", TWENTY + ".extra", THIRTY + ".extra",
@@ -78,7 +102,7 @@ test("combined module maps 2TB, 20TB and 30TB while preserving unrelated full to
   assert.equal(record.hitCount, 5);
   assert.equal(record.annualHitCount, 3);
   assert.equal(record.status, "rewritten");
-  assert.equal(record.version, "g1-acq-v7.5-pt-BR.1");
+  assert.equal(record.version, "g1-acq-v7.5-pt-BR.2");
   assert.deepEqual(record.matchedFrom, [
     { id: TWENTY, to: TWENTY_TARGET, count: 1, fallback: false },
     { id: OTHER_SOURCE, to: TARGET, count: 1, fallback: false },
@@ -152,7 +176,7 @@ test("single module saves original candidates before rewriting without recording
   const result = run("g1-acq.js", { body });
   assert.deepEqual(JSON.parse(result.payload.body), [TARGET, TARGET, TWENTY_TARGET, THIRTY_TARGET, "com.google.one.fixture"]);
   const scan = get(result.storage, SCAN_KEY);
-  assert.equal(scan.version, "g1-acq-v7.5-pt-BR.1");
+  assert.equal(scan.version, "g1-acq-v7.5-pt-BR.2");
   assert.deepEqual(scan.skus.map(row => row.id), ["com.google.one.fixture", TWENTY, SOURCE, THIRTY]);
   assert.equal(scan.skus.find(row => row.id === SOURCE).count, 2);
   assert.deepEqual(result.writes, [SCAN_KEY, TEST_KEY]);
@@ -218,7 +242,7 @@ test("activity distinguishes new IDs, repeated IDs, empty text and nontext respo
   assert.deepEqual(data.scan.recentResponses, scan.recentResponses);
   assert.equal(data.scan.nonTextResponses, 1);
   const html = run("g1-sku-report.js", { url: REPORT, storage }).payload.response.body;
-  assert(html.includes("Versão do coletor: <code>g1-acq-v7.5-pt-BR.1</code>"));
+  assert(html.includes("Versão do coletor: <code>g1-acq-v7.5-pt-BR.2</code>"));
   assert(html.includes("IDs já registrados"));
   assert(html.includes("o conteúdo não é texto analisável"));
 });
@@ -267,7 +291,7 @@ test("old scan records remain old until an actual response creates a new diagnos
   assert(html.includes("Registros de uma versão anterior; nenhuma resposta desta versão foi salva ainda"));
   run("g1-acq.js", { url: "https://one.google.com/plans", body: SOURCE, storage });
   data = JSON.parse(run("g1-sku-report.js", { url: REPORT + "?format=json", storage }).payload.response.body);
-  assert.equal(data.scan.version, "g1-acq-v7.5-pt-BR.1");
+  assert.equal(data.scan.version, "g1-acq-v7.5-pt-BR.2");
   assert.equal(data.scan.scannedResponses, 6);
   assert.equal(data.scan.matchedResponses, 2);
   assert.equal(data.scan.skus.length, 1);
@@ -283,7 +307,7 @@ test("activity export rejects malformed metadata and excludes untrusted extra fi
     candidateCount: 2, addedCount: 0, omittedCount: 0, body: "private-body", query: "private-token"
   };
   const storage = new Map([[SCAN_KEY, JSON.stringify({
-    schemaVersion: 1, version: "g1-acq-v7.5-pt-BR.1",
+    schemaVersion: 1, version: "g1-acq-v7.5-pt-BR.2",
     recentResponses: [event, { ...event, at: "<script>private</script>" }, { ...event, status: "constructor" }, { ...event, bodyType: "unknown" }]
   })]]);
   const result = run("g1-sku-report.js", { url: REPORT + "?format=json", storage });
@@ -377,7 +401,7 @@ test("report displays captured IDs and test sources without external assets", ()
   assert.match(payload.response.body, /Google One — Relatório local de SKUs/);
   assert(payload.response.body.includes(SOURCE));
   assert(payload.response.body.includes(TARGET));
-  assert(payload.response.body.includes("Relatório local ativo · v7.5.0-pt-BR.1"));
+  assert(payload.response.body.includes("Relatório local ativo · v7.5.0-pt-BR.2"));
   assert.match(payload.response.body, /<button\b[^>]*name=format[^>]*value=json[^>]*>Exportar JSON<\/button>/);
   assert(!/<(?:script|img|iframe)\b/i.test(payload.response.body));
   assert.equal(payload.response.headers["Cache-Control"], "no-store");
@@ -396,15 +420,15 @@ test("report export form resolves to a JSON attachment and supports a trailing s
     const result = run("g1-sku-report.js", { url: exportURL, storage });
     assert.equal(result.payload.response.status, 200);
     assert.equal(result.payload.response.headers["Content-Disposition"], 'attachment; filename="g1-sku-report.json"');
-    assert.equal(result.payload.response.headers["X-G1-Report-Version"], "v7.5.0-pt-BR.1");
+    assert.equal(result.payload.response.headers["X-G1-Report-Version"], "v7.5.0-pt-BR.2");
     const data = JSON.parse(result.payload.response.body);
-    assert.equal(data.reportVersion, "v7.5.0-pt-BR.1");
+    assert.equal(data.reportVersion, "v7.5.0-pt-BR.2");
     assert.equal(data.configuredTarget, TARGET);
     assert.equal(data.test.target, TARGET);
     assert.equal(data.test.targetOrigin, "user-specified");
     assert.equal(data.scan.skus[0].id, SOURCE);
     assert.equal(data.test.matchedFrom[0].to, TARGET);
-    assert(result.logs.some(line => line.includes("[g1-sku-report] v7.5.0-pt-BR.1 json")));
+    assert(result.logs.some(line => line.includes("[g1-sku-report] v7.5.0-pt-BR.2 json")));
   }
 });
 
@@ -415,7 +439,7 @@ test("report exports each actual target and separates annual hits from total hit
   });
   const result = run("g1-sku-report.js", { url: REPORT + "?format=json", storage });
   const data = JSON.parse(result.payload.response.body).test;
-  assert.equal(data.version, "g1-acq-v7.5-pt-BR.1");
+  assert.equal(data.version, "g1-acq-v7.5-pt-BR.2");
   assert.equal(data.hitCount, 3);
   assert.equal(data.annualHitCount, 1);
   assert.equal(data.matchedFrom.find(row => row.id === TWENTY).to, TWENTY_TARGET);
@@ -525,14 +549,17 @@ test("report handles unavailable storage and skips other URL paths", () => {
 test("the new installer replaces the old entry and all modules share one fixed release", () => {
   assert.equal(fs.existsSync(path.join(root, "g1-acq.sgmodule")), false);
   let scriptBase;
-  for (const file of ["g1-acq-v7.sgmodule", "g1-pro-annual-test.sgmodule", "g1-sku-scan.sgmodule"]) {
+  for (const file of ["g1-acq-v7.sgmodule", "g1-pro-annual-test.sgmodule", "g1-sku-scan.sgmodule", "g1-ultra-1m-test.sgmodule"]) {
     const module = fs.readFileSync(path.join(root, file), "utf8");
     const scripts = module.split("\n").filter(line => line.includes("script-path="));
     assert.equal(scripts.length, 2);
+    if (file === "g1-ultra-1m-test.sgmodule") {
+      for (const script of scripts) assert(script.includes("argument=ultra_1m"));
+    }
     if (file === "g1-acq-v7.sgmodule") assert.match(module, /^#!name=G1 ACQ$/m);
     for (const script of scripts) {
       const url = script.match(/script-path=([^,\s]+)/)[1];
-      assert.match(url, /^https:\/\/cdn\.jsdelivr\.net\/gh\/bufftop25\/newpro@v7\.5\.0-pt-BR\.1\/[a-z0-9.-]+\.js$/);
+      assert.match(url, /^https:\/\/cdn\.jsdelivr\.net\/gh\/bufftop25\/newpro@v7\.5\.0-pt-BR\.2\/[a-z0-9.-]+\.js$/);
       const base = url.slice(0, url.lastIndexOf("/") + 1);
       if (!scriptBase) scriptBase = base;
       assert.equal(base, scriptBase);

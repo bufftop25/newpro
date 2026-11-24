@@ -2,13 +2,16 @@
 "use strict";
 
 (function () {
-  var VERSION = "g1-acq-v7.5-pt-BR.1";
+  var VERSION = "g1-acq-v7.5-pt-BR.2";
   var SOURCE_PREFIX = "g1.ios.2tb.";
   // User-selected 12-month offer ID from the screenshot; store metadata is still unverified.
   var TARGET = "g1.2tb.ai.12months_ip_90p";
+  // O módulo experimental seleciona somente o candidato de 30 TB.
+  // A existência do ID no código não comprova preço ou elegibilidade na loja.
+  var ULTRA_TRIAL = typeof $argument === "string" && $argument.trim() === "ultra_1m";
   var SKU_MAP = {
     "g1.ios.20tb.m.v2": "g1.20tb.3months_ip_90p.acq",
-    "g1.ios.30tb.ai.pro.m": "g1.ai.ultra.3months_ip_90p.acq"
+    "g1.ios.30tb.ai.pro.m": ULTRA_TRIAL ? "g1.ai.ultra.1month_eft.acq" : "g1.ai.ultra.3months_ip_90p.acq"
   };
   var FALLBACK = {
     "g1.20tb.3months_ip_90p.acq": "g1.20tb.3months_ip_75p.acq",
